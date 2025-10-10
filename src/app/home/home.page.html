@@ -1,0 +1,19 @@
+<ion-content>
+  <router-outlet></router-outlet>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-segment value="discover" (ionChange)="go($any($event.detail.value) || 'discover')">
+      <ion-segment-button value="chats">
+        <ion-icon name="chatbubbles-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="discover">
+        <ion-icon name="planet-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="profile">
+        <ion-icon name="person-circle-outline"></ion-icon>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-footer>

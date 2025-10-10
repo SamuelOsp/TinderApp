@@ -1,0 +1,84 @@
+:host {
+  display: inline-block;
+}
+
+
+ion-button.app-btn {
+ 
+  --min-height: 40px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+
+  --border-radius: 12px;
+  --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+
+  --ripple-color: rgba(var(--ion-color-primary-rgb, 56, 128, 255), 0.2);
+
+  font-weight: 500;
+  margin: 0; 
+}
+
+¿
+ion-button.app-btn[size='small'] {
+  --min-height: 32px;
+  --padding-start: 10px;
+  --padding-end: 10px;
+  --border-radius: 10px;
+  font-size: 0.875rem;
+}
+ion-button.app-btn[size='large'] {
+  --min-height: 48px;
+  --padding-start: 18px;
+  --padding-end: 18px;
+  --border-radius: 14px;
+  font-size: 1rem;
+}
+
+ion-button.app-btn[shape='round'] {
+  --border-radius: 9999px;
+}
+
+
+ion-button.app-btn[strong] {
+  font-weight: 700;
+}
+
+
+ion-button.app-btn[expand='block'],
+ion-button.app-btn[expand='full'] {
+  width: 100%;
+}
+
+ion-button.app-btn[fill='clear'] {
+  --background: transparent;
+  --box-shadow: none;
+}
+ion-button.app-btn[fill='outline'] {
+  --background: transparent;
+  --border-width: 1px; 
+}
+
+
+ion-button.app-btn.button-disabled {
+  --opacity: 0.5;
+  pointer-events: none;
+}
+
+
+ion-button.app-btn.glass {
+  --background: rgba(255, 255, 255, 0.08);
+  --color: #fff;
+  --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+ion-button.app-btn.glass::part(native) {
+  backdrop-filter: blur(8px);
+}
+
+
+ion-button.app-btn ion-icon {
+  margin-inline: 4px;
+}
+

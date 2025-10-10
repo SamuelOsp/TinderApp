@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TinderApp</string>
+    <string name="title_activity_main">TinderApp</string>
+    <string name="package_name">io.ionic.starter</string>
+    <string name="custom_url_scheme">io.ionic.starter</string>
+    <string name="back">Back</string>
+    <string name="open_chat">Open chat</string>
+    <string name="nope">Nope</string>
+    <string name="like">Like</string>
+    <string name="message_hint">Message…</string>
+    <string name="send">Send</string>
+    <string name="sample_name">Jane Doe</string>
+    <string name="sample_city">Cartagena, Colombia</string>
+</resources>

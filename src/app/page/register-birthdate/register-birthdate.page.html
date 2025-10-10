@@ -1,0 +1,11 @@
+<ion-content class="pink ion-padding">
+  <div class="logo-top"><img src="assets/icon/Tinder_logo.svg" /></div>
+  <h2 class="title">My birthdate is</h2>
+
+  <ion-item lines="full" class="transp">
+    <ion-input type="date" [(ngModel)]="birth" placeholder="YYYY-MM-DD"></ion-input>
+  </ion-item>
+  <p class="hint">Your age will be public</p>
+
+  <app-button (click)="next()" [disabled]="!birth">Continue</app-button>
+</ion-content>

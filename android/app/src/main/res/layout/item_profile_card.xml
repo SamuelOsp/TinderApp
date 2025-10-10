@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="420dp"
+  android:layout_margin="6dp"
+  app:cardUseCompatPadding="true"
+  app:cardCornerRadius="18dp">
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+      android:id="@+id/cardImage"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:scaleType="centerCrop"
+      android:contentDescription="@null"
+      android:importantForAccessibility="no" />
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      android:padding="16dp"
+      android:orientation="vertical"
+      android:background="#66000000">
+
+      <TextView
+        android:id="@+id/cardTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:text="@string/sample_name" />
+
+      <TextView
+        android:id="@+id/cardMeta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:alpha="0.9"
+        android:text="@string/sample_city" />
+    </LinearLayout>
+
+  </RelativeLayout>
+</androidx.cardview.widget.CardView>
+

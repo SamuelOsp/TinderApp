@@ -1,0 +1,14 @@
+<ion-content class="pink ion-padding">
+  <div class="logo-top"><img src="assets/icon/Tinder_logo.svg" alt="Tinder logo" /></div>
+  <h1 class="title">Create account</h1>
+
+  <form [formGroup]="registerForm">
+    <app-input label="Name" [formControl]="name"></app-input>
+    <app-input label="Last name" [formControl]="lastname"></app-input>
+    <app-input label="Email" type="email" [formControl]="email"></app-input>
+    <app-input label="Password" type="password" [formControl]="password"></app-input>
+
+    <app-button (click)="next()" [disabled]="registerForm.invalid">Continue</app-button>
+    <app-button text="I have an account" fill="clear" (click)="goToLogin()"></app-button>
+  </form>
+</ion-content>

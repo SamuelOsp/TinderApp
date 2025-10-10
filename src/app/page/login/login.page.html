@@ -1,0 +1,35 @@
+<ion-content class="login-bg ion-padding">
+  <div class="logo-top">
+    <img src="assets/icon/Tinder_logo.svg" alt="tinder" />
+  </div>
+
+  <h1 class="title">Log In</h1>
+
+  <form [formGroup]="loginForm" (ngSubmit)="doLogin()">
+    <app-input
+      label="Email"
+      type="email"
+      [formControl]="email"
+      placeholder="you@email.com">
+    </app-input>
+
+    <app-input
+      label="Password"
+      type="password"
+      [formControl]="password"
+      placeholder="•••••••">
+    </app-input>
+
+    <app-button
+      class="cta"
+      [disabled]="loginForm.invalid"
+      type="submit"
+      >
+      Log In
+    </app-button>
+  </form>
+
+  <div class="small-link">
+    <a routerLink="/register">Don’t have an account?</a>
+  </div>
+</ion-content>

@@ -1,0 +1,25 @@
+// android/build.gradle (root)
+buildscript {
+  repositories {
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:8.7.2'
+    classpath 'com.google.gms:google-services:4.4.2'
+  }
+}
+
+// Si usas variables compartidas
+apply from: "variables.gradle"
+
+// No declares repositories aquí (déjalos vacíos si existe el bloque)
+// con repositoriesMode FAIL_ON_PROJECT_REPOS deben estar solo en settings.gradle
+allprojects {
+    // vacío a propósito
+}
+
+task clean(type: Delete) {
+  delete rootProject.buildDir
+}

@@ -1,0 +1,31 @@
+<ion-content class="pink ion-padding">
+  <div class="logo-top">
+    <img src="assets/icon/Tinder_logo.svg" alt="tinder" />
+  </div>
+
+  <h2 class="title">I am a</h2>
+
+  <div class="choices">
+    <ion-button expand="block" fill="outline" shape="round"
+                [strong]="gender==='female'"
+                [fill]="gender==='female' ? 'solid' : 'outline'"
+                (click)="gender='female'">WOMAN</ion-button>
+
+    <ion-button expand="block" fill="outline" shape="round"
+                [strong]="gender==='male'"
+                [fill]="gender==='male' ? 'solid' : 'outline'"
+                (click)="gender='male'">MAN</ion-button>
+
+    <ion-button expand="block" fill="outline" shape="round"
+                [strong]="gender==='other'"
+                [fill]="gender==='other' ? 'solid' : 'outline'"
+                (click)="gender='other'">OTHER</ion-button>
+  </div>
+
+  <ion-item lines="none" class="transp">
+    <ion-checkbox slot="start" [(ngModel)]="showGender"></ion-checkbox>
+    <ion-label>Show my gender on my profile</ion-label>
+  </ion-item>
+
+  <app-button (click)="next()" [disabled]="!gender">Continue</app-button>
+</ion-content>

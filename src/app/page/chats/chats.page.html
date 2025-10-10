@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Chats</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="conversations$ | async as convs; else empty">
+    <ion-item button detail="true" *ngFor="let c of convs" (click)="openNativeChat(c)">
+      <ion-avatar slot="start">
+        <img [src]="c.other.photoUrl || 'assets/icon/favicon.png'" alt="avatar" />
+      </ion-avatar>
+      <ion-label>
+        <h2>{{ c.other.name }} {{ c.other.lastName }}</h2>
+        <p>{{ c.lastMessage || 'Say hi!' }}</p>
+      </ion-label>
+      <ion-badge *ngIf="c.unread && c.unread > 0" color="danger">{{ c.unread }}</ion-badge>
+    </ion-item>
+  </ion-list>
+
+  <ng-template #empty>
+    <div class="empty ion-padding">
+      <p>No conversations yet.ddd</p>
+    </div>
+  </ng-template>
+</ion-content>

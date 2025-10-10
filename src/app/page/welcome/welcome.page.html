@@ -1,0 +1,25 @@
+<ion-content class="ion-padding welcome">
+  <div class="logo">
+    <img src="assets/icon/Tinder_logo.svg" alt="tinder" />
+  </div>
+
+  <h1>Welcome</h1>
+  <p class="subtitle">Please follow the house rules</p>
+
+  <ul class="rules">
+    <li><span>✔</span><b>Be yourself</b><br><small>Make sure your photos, age and bio are true.</small></li>
+    <li><span>✔</span><b>Stay safe</b><br><small>Don’t be too quick to give out personal info.</small></li>
+    <li><span>✔</span><b>Play it cool</b><br><small>Respect others as you’d like to be treated.</small></li>
+  </ul>
+
+  <ion-item lines="none" class="terms">
+    <ion-checkbox slot="start" [(ngModel)]="agreed"></ion-checkbox>
+    <ion-label>
+      I agree to the <a routerLink="/terms">Terms</a> and <a routerLink="/privacy">Privacy Policy</a>.
+    </ion-label>
+  </ion-item>
+
+  <app-button expand="block" class="agree" [disabled]="!agreed" (click)="accept()">
+    I Agree
+  </app-button>
+</ion-content>

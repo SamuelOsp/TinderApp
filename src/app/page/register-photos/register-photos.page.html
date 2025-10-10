@@ -1,0 +1,22 @@
+<ion-content class="pink ion-padding">
+  <div class="logo-top">
+    <img src="assets/icon/Tinder_logo.svg" alt="Tinder logo" />
+  </div>
+
+  <h2 class="title">Add your photos</h2>
+  <p class="subtitle">Estas fotos aparecerán en tu perfil y en el feed de otras personas.</p>
+
+  <div class="photos">
+    <div class="thumb" *ngFor="let p of photos; let i = index">
+      <img [src]="p.src" alt="photo preview" />
+      <div class="badge" *ngIf="p.uploading">Uploading…</div>
+      <ion-button fill="clear" size="small" class="remove" (click)="remove(i)">Remove</ion-button>
+    </div>
+  </div>
+
+  <app-button (click)="pick()">Upload photo</app-button>
+
+  <app-button class="mt" (click)="finish()" [disabled]="photos.length === 0">
+    Finish
+  </app-button>
+</ion-content>

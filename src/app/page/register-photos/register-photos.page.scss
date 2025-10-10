@@ -1,0 +1,28 @@
+.pink { --background:#ff5a66; color:#fff; }
+.logo-top { display:flex; justify-content:center; margin:7vh 0 12px;
+  img { width:90px; height:auto; }
+}
+.title { color:#fff; margin-bottom:4px; font-weight:800; }
+.subtitle { color:#ffe; margin-bottom:12px; opacity:.9; }
+
+.photos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin: 10px 0 14px;
+  .thumb {
+    position: relative; width: 100%; padding-top: 130%;
+    border-radius: 12px; overflow: hidden; background:#ffffff22;
+    box-shadow: 0 4px 10px rgba(0,0,0,.12);
+
+    img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .remove { position:absolute; right:0; top:0; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.3); }
+
+    .badge {
+      position: absolute; left:6px; bottom:6px;
+      background: rgba(0,0,0,.55); color:#fff; padding:2px 6px; border-radius:8px;
+      font-size: 11px;
+    }
+  }
+}
+
+.mt { margin-top: 14px; }

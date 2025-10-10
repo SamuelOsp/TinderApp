@@ -1,0 +1,10 @@
+.login-bg { --background: #fff; }
+.logo-top { display:flex; justify-content:center; margin-top: 8vh; margin-bottom: 16px;
+  img { width: 96px; height:auto; }
+}
+.title { text-align:center; font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+app-input { display:block; margin-bottom: 10px; }
+.cta { margin-top: 14px; display:block; }
+.small-link { text-align:center; margin-top: 12px;
+  a { color:#007aff; text-decoration: underline; }
+}

@@ -1,0 +1,14 @@
+<ion-content class="pink ion-padding">
+  <div class="logo-top"><img src="assets/icon/Tinder_logo.svg" /></div>
+  <h2 class="title">Pick your passions</h2>
+
+  <div class="chips">
+    <ion-chip [color]="on('Music')" (click)="toggle('Music')">Music</ion-chip>
+    <ion-chip [color]="on('Travel')" (click)="toggle('Travel')">Travel</ion-chip>
+    <ion-chip [color]="on('Meditation')" (click)="toggle('Meditation')">Meditation</ion-chip>
+    <ion-chip [color]="on('Video games')" (click)="toggle('Video games')">Video games</ion-chip>
+    <ion-chip [color]="on('Harry potter')" (click)="toggle('Harry potter')">Harry potter</ion-chip>
+  </div>
+
+  <app-button  (click)="next()" [disabled]="passions.length===0">Continue</app-button>
+</ion-content>
