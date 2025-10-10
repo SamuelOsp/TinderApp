@@ -1,5 +1,7 @@
 import { ChangeDetectorRef, Component, ElementRef, Input, NgZone, Renderer2 } from '@angular/core';
 
+type Variant = 'primary' | 'ghost' | 'link';
+
 @Component({
   selector: 'app-button',
   templateUrl: './button.component.html',
@@ -16,6 +18,8 @@ export class ButtonComponent {
   @Input() disabled = false;
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
 
+   @Input() variant: Variant = 'primary';
+
   constructor(
     private cdr: ChangeDetectorRef,
     private el: ElementRef<HTMLElement>,
@@ -24,7 +28,7 @@ export class ButtonComponent {
   ) {}
 
   ngOnChanges() {
-    const btn = this.el.nativeElement.querySelector('button');
+     const btn = this.el.nativeElement.querySelector('button, ion-button');
     if (!btn) return;
 
     this.zone.runOutsideAngular(() => {

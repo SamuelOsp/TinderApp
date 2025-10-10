@@ -1,5 +1,6 @@
-import { Component, forwardRef, Input, OnInit } from '@angular/core';
+import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import type { IonInputCustomEvent, InputInputEventDetail } from '@ionic/core/components'; 
 
 type InputType = 'text' | 'email' | 'password' | 'number';
 
@@ -7,55 +8,36 @@ type InputType = 'text' | 'email' | 'password' | 'number';
   selector: 'app-input',
   templateUrl: './input.component.html',
   styleUrls: ['./input.component.scss'],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputComponent),
-      multi: true,
-    },
-  ],
+  providers: [{
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => InputComponent),
+    multi: true
+  }],
   standalone: false,
 })
-export class InputComponent implements OnInit, ControlValueAccessor {
+export class InputComponent implements ControlValueAccessor {
   @Input() type: InputType = 'text';
-  @Input() label: string = '';
-  @Input() placeholder: string = '';
+  @Input() label = '';
+  @Input() placeholder = '';
 
-  value: any = '';
+  value = '';
   disabled = false;
+  focused = false;
 
-  private onChange = (value: any) => {};
+  private onChange = (v: any) => {};
   private onTouched = () => {};
 
-  constructor() {}
+  writeValue(v: any): void { this.value = v ?? ''; }
+  registerOnChange(fn: any): void { this.onChange = fn; }
+  registerOnTouched(fn: any): void { this.onTouched = fn; }
+  setDisabledState(isDisabled: boolean): void { this.disabled = isDisabled; }
 
-  ngOnInit() {}
-
-
-  writeValue(value: any): void {
-    this.value = value ?? '';
-  }
-
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-  }
-
-  onInputChange(event: any): void {
-    const newValue = event.target.value;
+  onInputChange(ev: IonInputCustomEvent<InputInputEventDetail>) {
+    const newValue = ev.detail.value ?? '';
     this.value = newValue;
     this.onChange(newValue);
   }
 
-  onBlur(): void {
-    this.onTouched();
-  }
-
+  onFocus() { this.focused = true; }
+  onBlur()  { this.focused = false; this.onTouched(); }
 }

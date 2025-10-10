@@ -1,11 +1,14 @@
-<div class="input-wrapper">
+<div class="input-wrapper" [class.is-focused]="focused">
   <label class="input-label">{{ label }}</label>
+
   <ion-input
+    class="tinder-input"
     [type]="type"
     [placeholder]="placeholder"
     [disabled]="disabled"
     [value]="value"
     (ionInput)="onInputChange($event)"
+    (ionFocus)="onFocus()"
     (ionBlur)="onBlur()">
   </ion-input>
 </div>

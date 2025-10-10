@@ -1,42 +1,51 @@
-<ion-header translucent="true">
-  <ion-toolbar>
-    <ion-title>Discover</ion-title>
-    <ion-buttons slot="end">
-      <ion-icon name="flame" style="font-size:22px;margin-right:12px"></ion-icon>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="discover">
 
-<ion-content [fullscreen]="true">
+  <div class="topbar">
+    <ion-icon name="flame" aria-hidden="true"></ion-icon>
+  </div>
+
   <div class="deck">
-    <div class="card" #cardEl *ngFor="let p of profiles; let i=index" [style.zIndex]="100-i" [class.behind]="i>0">
-      <div class="tap tap-left" (click)="prevPhoto(p)"></div>
+    <div
+      class="card"
+      #cardEl
+      *ngFor="let p of profiles; let i = index; trackBy: trackById"
+      [style.zIndex]="100 - i"
+      [class.behind-1]="i === 1"
+      [class.behind-2]="i === 2"
+      [class.behind]="i > 0">
+
+      <div class="tap tap-left"  (click)="prevPhoto(p)"></div>
       <div class="tap tap-right" (click)="nextPhoto(p)"></div>
 
-      <img class="photo" [src]="p.photos[photoIndex[p.id]||0]?.url" loading="lazy"/>
+      <img class="photo" [src]="getPhoto(p)" alt="" loading="lazy" />
 
       <div class="dots">
-        <span *ngFor="let f of p.photos; let k=index" [class.on]="k <= (photoIndex[p.id]||0)"></span>
+        <span *ngFor="let f of p.photos; let k = index" [class.on]="k <= (photoIndex[p.id] || 0)"></span>
       </div>
+
+      <div class="badge like">LIKE</div>
+      <div class="badge nope">NOPE</div>
 
       <div class="info">
         <div class="name-row">
-          <span class="name">{{p.name}}</span><span class="age">{{p.age}}</span>
+          <span class="name">{{ p.name }}</span>
+          <span class="age" *ngIf="p.age != null">{{ p.age }}</span>
         </div>
         <div class="meta" *ngIf="p.distanceKm != null">
-          <ion-icon name="location-outline"></ion-icon>{{p.distanceKm}} km away
+          <ion-icon name="location-outline"></ion-icon>
+          {{ p.distanceKm }} km away
         </div>
+        <div class="bio" *ngIf="p.bio">{{ p.bio }}</div>
       </div>
     </div>
   </div>
 
   <div class="actions">
-    <ion-button fill="clear" size="large" (click)="passTop()">
-      <ion-icon name="close-circle" style="font-size:40px"></ion-icon>
-    </ion-button>
-    <ion-button fill="clear" size="large" (click)="likeTop()">
-      <ion-icon name="heart-circle" style="font-size:40px"></ion-icon>
-    </ion-button>
+    <button class="btn btn-nope" (click)="passTop()" aria-label="Nope">
+      <ion-icon name="close"></ion-icon>
+    </button>
+    <button class="btn btn-like" (click)="likeTop()" aria-label="Like">
+      <ion-icon name="heart"></ion-icon>
+    </button>
   </div>
 </ion-content>
-

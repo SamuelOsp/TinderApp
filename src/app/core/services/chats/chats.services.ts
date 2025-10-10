@@ -1,92 +1,105 @@
+// src/app/core/services/chats/chats.services.ts
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, query, where, orderBy, doc, docData } from '@angular/fire/firestore';
-import { map, switchMap, combineLatestAll } from 'rxjs/operators';
-import { Observable, of, from } from 'rxjs';
-import { getAuth } from 'firebase/auth';
-
-export interface Conversation {
-  id: string;
-  participants: string[];
-  lastMessage?: string;
-  lastAt?: any; 
-  lastSender?: string;
-  unread?: Record<string, number>;
-}
-
-export interface UserProfile {
-  uid: string;
-  name?: string;
-  lastName?: string;
-  photoUrl?: string;
-  city?: string;
-}
+import {
+  Firestore, doc, setDoc, collection, addDoc, serverTimestamp,
+  collectionData, docData, query, where, orderBy, limit
+} from '@angular/fire/firestore';
+import { Observable, combineLatest, map, of, switchMap } from 'rxjs';
 
 export interface ConversationVM {
   id: string;
-  other: UserProfile;
-  lastMessage?: string;
-  lastAt?: any;
-  unread?: number;
+  users: string[];
+  updatedAt?: any;          
+  lastText?: string;
+  lastAuthorId?: string;
+  unread?: number;         
+  other?: {
+    uid: string;
+    name?: string;
+    lastName?: string;
+    photoUrl?: string;
+  };
 }
 
 @Injectable({ providedIn: 'root' })
 export class ChatsService {
   constructor(private afs: Firestore) {}
 
-  private me(): string {
-    return getAuth().currentUser?.uid ?? '';
+  private convoId(me: string, other: string) {
+    return me < other ? `${me}_${other}` : `${other}_${me}`;
   }
 
-  
-  conversations$(): Observable<ConversationVM[]> {
-    const uid = this.me();
-    if (!uid) return of([]);
-
-    const q = query(
-      collection(this.afs, 'conversations'),
-      where('participants', 'array-contains', uid),
-      orderBy('lastAt', 'desc')
+  conversations$(meUid: string, take: number = 50): Observable<ConversationVM[]> {
+    const col = collection(this.afs, 'conversations');
+    const qy = query(col,
+      where('users', 'array-contains', meUid),
+      orderBy('updatedAt', 'desc'),
+      limit(take)
     );
 
-    return collectionData(q, { idField: 'id' }).pipe(
+    return collectionData(qy, { idField: 'id' }).pipe(
       switchMap((rows: any[]) => {
-        if (!rows.length) return of([] as ConversationVM[]);
-
+        if (!rows?.length) return of<ConversationVM[]>([]);
         const items$ = rows.map(row => {
-          const otherUid: string = (row.participants as string[]).find(x => x !== uid) || '';
+          const otherUid = (row?.users || []).find((u: string) => u !== meUid) || '';
           if (!otherUid) {
-            const vm: ConversationVM = { id: row.id, other: { uid: '' }, lastMessage: row.lastMessage, lastAt: row.lastAt, unread: row.unread?.[uid] ?? 0 };
-            return of(vm);
+            return of({
+              id: row.id,
+              users: row.users || [],
+              updatedAt: row.updatedAt,
+              lastText: row.lastText,
+              lastAuthorId: row.lastAuthorId,
+              unread: row?.[`unreadBy_${meUid}`] ?? 0,
+              other: { uid: '', name: '', lastName: '', photoUrl: '' }
+            } as ConversationVM);
           }
-          const ref = doc(this.afs, 'users', otherUid);
-          return docData(ref, { idField: 'uid' }).pipe(
-            map((u: any) => {
-              const other: UserProfile = {
+          return docData(doc(this.afs, `users/${otherUid}`)).pipe(
+            map((u: any) => ({
+              id: row.id,
+              users: row.users || [],
+              updatedAt: row.updatedAt,
+              lastText: row.lastText,
+              lastAuthorId: row.lastAuthorId,
+              unread: row?.[`unreadBy_${meUid}`] ?? 0,
+              other: {
                 uid: otherUid,
-                name: u?.name,
-                lastName: u?.lastName,
-                photoUrl: (u?.photos && u.photos[0]) || u?.photoUrl || '',
-                city: u?.city
-              };
-              const vm: ConversationVM = {
-                id: row.id,
-                other,
-                lastMessage: row.lastMessage,
-                lastAt: row.lastAt,
-                unread: row.unread?.[uid] ?? 0
-              };
-              return vm;
-            })
+                name: u?.name || u?.displayName || '',
+                lastName: u?.lastName || u?.surname || '',
+                photoUrl: u?.photoUrl || u?.avatar || ''
+              }
+            } as ConversationVM))
           );
         });
-
-        return from(items$).pipe(combineLatestAll());
+        return combineLatest(items$);
       })
     );
   }
 
-  
-  convoId(a: string, b: string) {
-    return [a, b].sort().join('_');
+  async sendAutoMessage(meUid: string, otherUid: string, text: string) {
+    const id = this.convoId(meUid, otherUid);
+
+    
+    await setDoc(
+      doc(this.afs, `conversations/${id}`),
+      { id, users: [meUid, otherUid], updatedAt: serverTimestamp() },
+      { merge: true }
+    );
+
+   
+    await addDoc(
+      collection(this.afs, `conversations/${id}/messages`),
+      {
+        authorId: meUid,
+        text,
+        sentAt: serverTimestamp(),
+        system: true
+      }
+    );
+
+    await setDoc(
+      doc(this.afs, `conversations/${id}`),
+      { updatedAt: serverTimestamp(), lastText: text, lastAuthorId: meUid },
+      { merge: true }
+    );
   }
 }

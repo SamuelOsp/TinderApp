@@ -1,35 +1,43 @@
-<ion-content class="login-bg ion-padding">
-  <div class="logo-top">
-    <img src="assets/icon/Tinder_logo.svg" alt="tinder" />
+<ion-content [fullscreen]="true" class="login">
+
+ 
+  <div class="hero">
+    <img class="logo" src="assets/icon/Tinder_logo.svg" alt="tinder" />
   </div>
 
-  <h1 class="title">Log In</h1>
+  
+  <div class="card">
+    <h1>Log in</h1>
 
-  <form [formGroup]="loginForm" (ngSubmit)="doLogin()">
-    <app-input
-      label="Email"
-      type="email"
-      [formControl]="email"
-      placeholder="you@email.com">
-    </app-input>
+    <form [formGroup]="loginForm" (ngSubmit)="doLogin()">
+      <app-input
+        label="Email"
+        type="email"
+        [formControl]="email"
+        placeholder="you@email.com">
+      </app-input>
 
-    <app-input
-      label="Password"
-      type="password"
-      [formControl]="password"
-      placeholder="•••••••">
-    </app-input>
+      <app-input
+        label="Password"
+        type="password"
+        [formControl]="password"
+        placeholder="•••••••">
+      </app-input>
 
-    <app-button
-      class="cta"
-      [disabled]="loginForm.invalid"
-      type="submit"
-      >
-      Log In
-    </app-button>
-  </form>
+      <app-button class="btn-primary" type="submit" [disabled]="loginForm.invalid">
+        Log in
+      </app-button>
+    </form>
 
-  <div class="small-link">
-    <a routerLink="/register">Don’t have an account?</a>
+    <button class="btn-ghost" type="button" routerLink="/register">
+      Don’t have an account?
+    </button>
+  </div>
+
+
+  <div class="footer-hint">
+    By logging in you agree to our
+    <a href="#" (click)="$event.preventDefault()">Terms</a> &amp;
+    <a href="#" (click)="$event.preventDefault()">Privacy</a>.
   </div>
 </ion-content>

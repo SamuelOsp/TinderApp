@@ -1,10 +1,98 @@
-.login-bg { --background: #fff; }
-.logo-top { display:flex; justify-content:center; margin-top: 8vh; margin-bottom: 16px;
-  img { width: 96px; height:auto; }
+/* Fondo tipo Tinder + edge-to-edge */
+.login {
+  --background: linear-gradient(180deg, #FD297B 0%, #FF655B 50%, #FF8A00 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100%;
 }
-.title { text-align:center; font-size: 32px; font-weight: 800; margin-bottom: 12px; }
-app-input { display:block; margin-bottom: 10px; }
-.cta { margin-top: 14px; display:block; }
-.small-link { text-align:center; margin-top: 12px;
-  a { color:#007aff; text-decoration: underline; }
+
+/* Logo centrado con safe area */
+.hero {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: calc(env(safe-area-inset-top) + 42px);
+  padding-bottom: 12px;
+}
+.logo {
+  width: 112px;
+  height: auto;
+}
+
+/* Tarjeta del form */
+.card {
+  width: min(520px, 92vw);
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 20px 18px 16px;
+  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.25);
+  backdrop-filter: saturate(140%) blur(2px);
+  margin: 8px auto 0;
+}
+
+.card h1 {
+  margin: 0 0 10px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #111;
+}
+
+/* Espaciado entre campos */
+app-input {
+  display: block;
+  margin-bottom: 12px;
+  /* Si tu app-input usa IonInput por dentro, puedes afinar colores vía variables: */
+  --color: #111;
+  --placeholder-color: #8a8a8e;
+  --label-color: #8a8a8e;
+}
+
+/* Botón principal “pill” con gradiente */
+.btn-primary {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  height: 52px;
+
+  /* Si app-button envuelve un ion-button, estas variables lo estilizan: */
+  --background: linear-gradient(90deg, #FD297B, #FF655B, #FF8A00);
+  --border-radius: 999px;
+  --padding-start: 18px;
+  --padding-end: 18px;
+  --box-shadow: 0 12px 28px rgba(253, 41, 123, 0.35);
+
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+/* Botón secundario estilo ghost */
+.btn-ghost {
+  width: 100%;
+  height: 48px;
+  margin-top: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.75);
+  color: #111;
+  font-weight: 600;
+  backdrop-filter: saturate(160%) blur(4px);
+}
+
+/* Pie con safe area inferior, texto blanco sobre el gradiente */
+.footer-hint {
+  width: 100%;
+  text-align: center;
+  padding: 14px 22px calc(env(safe-area-inset-bottom) + 10px);
+  font-size: 12px;
+  color: rgba(255,255,255,0.9);
+}
+.footer-hint a {
+  color: #fff;
+  text-decoration: underline;
+}
+
+@media (min-height: 740px) {
+  .card { margin-top: 16px; }
 }
