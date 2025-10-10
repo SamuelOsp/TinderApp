@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+  <domain-config cleartextTrafficPermitted="true">
+    <!-- Cambia estos dominios a los tuyos -->
+    <domain includeSubdomains="true">10.0.2.2</domain>
+    <domain includeSubdomains="true">localhost</domain>
+    <domain includeSubdomains="true">tu-backend.local</domain>
+  </domain-config>
+</network-security-config>
+

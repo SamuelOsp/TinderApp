@@ -35,6 +35,9 @@ public class MatchingActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    if (FirebaseApp.getApps(this).isEmpty()) {
+      FirebaseApp.initializeApp(this);
+    }
     setContentView(R.layout.activity_matching);
 
     rv = findViewById(R.id.rvCards);

@@ -4,6 +4,7 @@ import { Chat } from 'src/capacitor/chat';
 import { getAuth } from 'firebase/auth';
 import { NavController } from '@ionic/angular';
 import { ChatsService, ConversationVM } from 'src/app/core/services/chats/chats.services';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chats',
@@ -14,15 +15,15 @@ import { ChatsService, ConversationVM } from 'src/app/core/services/chats/chats.
 export class ChatsPage implements OnInit {
   conversations$!: Observable<ConversationVM[]>;
 
-  constructor(private chats: ChatsService, private nav: NavController) {}
+  constructor(private chats: ChatsService, private router: Router) {}
 
   ngOnInit() {
     this.conversations$ = this.chats.conversations$();
   }
 
-  async openNativeChat(c: ConversationVM) {
+  async open(c: ConversationVM) {
     const me = getAuth().currentUser?.uid || '';
     if (!me || !c?.other?.uid) return;
-    await Chat.open({ me, with: c.other.uid });
+    this.router.navigate(['/chat', c.id]);
   }
 }

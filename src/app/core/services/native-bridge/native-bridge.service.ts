@@ -1,42 +1,48 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Matching } from 'src/capacitor/matching';
-import { Chat } from 'src/capacitor/chat';
-import { Router } from '@angular/router';
-import { getAuth } from 'firebase/auth';
+
+export interface ProfilePhoto { url: string }
+export interface Profile {
+  id: string;
+  name: string;
+  age: number;
+  distanceKm?: number;
+  photos: ProfilePhoto[];
+  bio?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class NativeBridgeService {
   private mounted = false;
 
-  constructor(private zone: NgZone, private router: Router) {}
+  constructor(private zone: NgZone) {}
 
- 
-mount() {
-  if (this.mounted) return;
-  this.mounted = true;
-  Matching.addListener('like',   ({ to }) => console.log('like', to));
-  Matching.addListener('nope',   ({ to }) => console.log('nope', to));
-  Matching.addListener('openChat', async ({ with: uid }) => {
-    const me = getAuth().currentUser?.uid || '';
-    if (!me) return;
-    await Chat.open({ me, with: uid });
-  });
-}
+  
+  mount() {
+    if (this.mounted) return;
+    this.mounted = true;
 
+    Matching.addListener?.('like', ({ to }) =>
+      console.log('[native] like', to)
+    );
+    Matching.addListener?.('nope', ({ to }) =>
+      console.log('[native] nope', to)
+    );
 
- 
-  async openMatching() {
-  const uid = getAuth().currentUser?.uid || '';
-  if (!uid) {
-    console.warn('No auth uid; abort Matching.open');
-    return;
+   
   }
-  try {
-    await Matching.open({ uid });
-  } catch (e) {
-    console.error('Matching.open failed', e);
+
+
+  async matchingGetProfiles(opts: { limit?: number }) {
+
+    return Matching.getProfiles(opts);
   }
-}
 
+  async matchingLike(opts: { profileId: string }) {
+    return Matching.like(opts);
+  }
 
+  async matchingPass(opts: { profileId: string }) {
+    return Matching.pass(opts);
+  }
 }

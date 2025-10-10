@@ -6,7 +6,7 @@
 
 <ion-content>
   <ion-list *ngIf="conversations$ | async as convs; else empty">
-    <ion-item button detail="true" *ngFor="let c of convs" (click)="openNativeChat(c)">
+  <ion-item button detail="true" *ngFor="let c of convs" (click)="open(c)">
       <ion-avatar slot="start">
         <img [src]="c.other.photoUrl || 'assets/icon/favicon.png'" alt="avatar" />
       </ion-avatar>

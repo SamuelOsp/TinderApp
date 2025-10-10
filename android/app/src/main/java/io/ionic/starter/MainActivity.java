@@ -5,7 +5,7 @@ import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
 import com.tinderapp.matching.MatchingPlugin;
 
-public class MainActivity extends BridgeActivity {
+public class  MainActivity extends BridgeActivity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     registerPlugin(MatchingPlugin.class);

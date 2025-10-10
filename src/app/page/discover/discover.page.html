@@ -1,5 +1,42 @@
-<ion-content class="ion-padding">
-  <h2>Discover</h2>
-  <p>Abre la vista nativa de matching.</p>
-  <app-button (click)="openMatching()">Open Matching</app-button>
+<ion-header translucent="true">
+  <ion-toolbar>
+    <ion-title>Discover</ion-title>
+    <ion-buttons slot="end">
+      <ion-icon name="flame" style="font-size:22px;margin-right:12px"></ion-icon>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="deck">
+    <div class="card" #cardEl *ngFor="let p of profiles; let i=index" [style.zIndex]="100-i" [class.behind]="i>0">
+      <div class="tap tap-left" (click)="prevPhoto(p)"></div>
+      <div class="tap tap-right" (click)="nextPhoto(p)"></div>
+
+      <img class="photo" [src]="p.photos[photoIndex[p.id]||0]?.url" loading="lazy"/>
+
+      <div class="dots">
+        <span *ngFor="let f of p.photos; let k=index" [class.on]="k <= (photoIndex[p.id]||0)"></span>
+      </div>
+
+      <div class="info">
+        <div class="name-row">
+          <span class="name">{{p.name}}</span><span class="age">{{p.age}}</span>
+        </div>
+        <div class="meta" *ngIf="p.distanceKm != null">
+          <ion-icon name="location-outline"></ion-icon>{{p.distanceKm}} km away
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <ion-button fill="clear" size="large" (click)="passTop()">
+      <ion-icon name="close-circle" style="font-size:40px"></ion-icon>
+    </ion-button>
+    <ion-button fill="clear" size="large" (click)="likeTop()">
+      <ion-icon name="heart-circle" style="font-size:40px"></ion-icon>
+    </ion-button>
+  </div>
 </ion-content>
+

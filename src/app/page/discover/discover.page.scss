@@ -1,0 +1,16 @@
+ion-content { --background:#fff; }
+.deck { position:relative; height:calc(100vh - 180px); margin:12px; }
+.card { position:absolute; inset:0; border-radius:18px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,.18); background:#000; }
+.card.behind { transform: translateY(10px) scale(.98); filter: blur(.3px); }
+.photo { width:100%; height:100%; object-fit:cover; }
+.tap { position:absolute; top:0; bottom:0; width:50%; }
+.tap-left{ left:0; } .tap-right{ right:0; }
+.dots{ position:absolute; top:10px; left:10px; right:10px; display:flex; gap:6px; }
+.dots span{ flex:1; height:3px; background:rgba(255,255,255,.35); border-radius:3px; }
+.dots span.on{ background:#fff; }
+.info{ position:absolute; left:0; right:0; bottom:0; color:#fff; padding:14px;
+  background:linear-gradient(180deg, transparent 0, rgba(0,0,0,.45) 60%, rgba(0,0,0,.8) 100%); }
+.name-row{ display:flex; gap:8px; font-weight:700; }
+.name{ font-size:22px; } .age{ font-size:20px; opacity:.9; }
+.meta{ margin-top:2px; display:flex; align-items:center; gap:6px; opacity:.9; }
+.actions{ height:100px; display:flex; justify-content:center; align-items:center; gap:28px; }
