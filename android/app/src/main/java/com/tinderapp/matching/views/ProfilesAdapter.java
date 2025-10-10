@@ -1,45 +1,65 @@
 package com.tinderapp.matching.views;
 
+import android.content.Context;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.tinderapp.models.Profile;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.VH> {
-  private final List<Profile> data = new ArrayList<>();
 
-  public static class VH extends RecyclerView.ViewHolder {
-    public final ProfileCardView card;
-    public VH(@NonNull ProfileCardView v) { super(v); card = v; }
+  private final List<Profile> items = new ArrayList<>();
+  private final Context ctx;
+
+  public ProfilesAdapter(@NonNull Context ctx, List<Profile> initial) {
+    this.ctx = ctx;
+    if (initial != null) items.addAll(initial);
   }
 
-  @NonNull @Override
+  @NonNull
+  @Override
   public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
     ProfileCardView v = new ProfileCardView(parent.getContext());
-    v.setLayoutParams(new ViewGroup.LayoutParams(
-      ViewGroup.LayoutParams.MATCH_PARENT,
-      ViewGroup.LayoutParams.WRAP_CONTENT
-    ));
+    int m = (int) (8 * parent.getResources().getDisplayMetrics().density);
+    v.setPadding(m, m, m, m);
     return new VH(v);
   }
 
   @Override
   public void onBindViewHolder(@NonNull VH holder, int position) {
-    holder.card.bind(data.get(position));
+    holder.bind(items.get(position));
   }
 
-  @Override public int getItemCount() { return data.size(); }
-
-  public Profile getItem(int pos) { return data.get(pos); }
-  public Profile peek() { return data.isEmpty() ? null : data.get(0); }
-
-  public void removeTop() {
-    if (!data.isEmpty()) { data.remove(0); notifyItemRemoved(0); }
+  @Override
+  public int getItemCount() {
+    return items.size();
   }
 
-  public void submit(List<Profile> items) {
-    data.clear(); data.addAll(items); notifyDataSetChanged();
+  public Profile getItem(int pos) {
+    return items.get(pos);
+  }
+
+  public void removeAt(int pos) {
+    if (pos < 0 || pos >= items.size()) return;
+    items.remove(pos);
+    notifyItemRemoved(pos);
+  }
+
+  public static class VH extends RecyclerView.ViewHolder {
+    private final ProfileCardView card;
+
+    public VH(@NonNull ProfileCardView itemView) {
+      super(itemView);
+      this.card = itemView;
+    }
+
+    void bind(Profile p) {
+      card.bind(p);
+    }
   }
 }
