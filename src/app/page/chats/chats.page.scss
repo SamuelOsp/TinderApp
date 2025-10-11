@@ -58,3 +58,12 @@
     --ripple-color: rgba(255,68,88,.35);
   }
 }
+ion-content.chat-bg {
+  --padding-bottom: calc(84px + var(--ion-safe-area-bottom));
+}
+.chat-bg {
+  --padding-bottom: 84px; 
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+

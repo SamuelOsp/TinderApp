@@ -2,14 +2,16 @@
   <router-outlet></router-outlet>
 </ion-content>
 
-<ion-footer>
+<!-- ÚNICA barra inferior -->
+<ion-footer class="footer-glass">
   <ion-toolbar>
-    <ion-segment value="discover" (ionChange)="go($any($event.detail.value) || 'discover')">
+    <!-- Castea con $any y pasa TODO el evento -->
+    <ion-segment [value]="$any(selected)" (ionChange)="go($event)">
       <ion-segment-button value="chats">
         <ion-icon name="chatbubbles-outline"></ion-icon>
       </ion-segment-button>
       <ion-segment-button value="discover">
-        <ion-icon name="planet-outline"></ion-icon>
+        <ion-icon name="flame-outline"></ion-icon>
       </ion-segment-button>
       <ion-segment-button value="profile">
         <ion-icon name="person-circle-outline"></ion-icon>

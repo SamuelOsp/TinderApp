@@ -1,28 +1,31 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { SegmentChangeEventDetail } from '@ionic/angular';
+import { Component, OnInit } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
-type Tab = 'discover' | 'chats' | 'profile';
+type Tab = 'chats' | 'discover' | 'profile';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
-  standalone: false,
+  standalone: false
 })
-export class HomePage {
-  segment: Tab = 'discover';
+export class HomePage implements OnInit {
+  selected: Tab = 'discover';
 
   constructor(private router: Router) {}
 
-  onSegmentChange(ev: CustomEvent<SegmentChangeEventDetail>) {
-    const val = (ev.detail.value as Tab | null) ?? 'discover';
-    this.go(val);
+  ngOnInit() {
+    this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => {
+      const url = this.router.url;
+      if (url.includes('chats')) this.selected = 'chats';
+      else if (url.includes('profile')) this.selected = 'profile';
+      else this.selected = 'discover';
+    });
   }
 
-  go(tab: Tab) {
-    this.segment = tab;
-    
-    this.router.navigate(['/home', tab]);
+  go(ev: CustomEvent) {
+    const value = (ev.detail as any)?.value as string | null | undefined;
+    this.router.navigate(['/home', value || 'discover']);
   }
 }
