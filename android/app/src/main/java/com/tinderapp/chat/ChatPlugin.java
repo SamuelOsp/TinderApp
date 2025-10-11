@@ -23,6 +23,7 @@ public class ChatPlugin extends Plugin {
     i.putExtra("withUid", with);
     i.putExtra("peerName", call.getString("peerName"));
     i.putExtra("autoMessage", call.getString("autoMessage"));
+    i.putExtra("peerPhotoUrl", call.getString("peerPhotoUrl"));
     getActivity().startActivity(i);
     call.resolve(new JSObject().put("ok", true));
   }

@@ -1,7 +1,60 @@
-ion-item {
-  --min-height: 64px;
+.chat-bg {
+  --background: radial-gradient(800px 400px at 10% -10%, rgba(255,77,109,.28) 0%, transparent 60%),
+                radial-gradient(700px 380px at 110% 0%, rgba(138,108,255,.24) 0%, transparent 60%),
+                linear-gradient(180deg, #0b0b10 0%, #0b0b10 100%);
 }
-.empty {
-  text-align: center;
-  color: #888;
+
+.glass-header ion-toolbar {
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  --background: rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.glass {
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  background: rgba(255,255,255,0.07) !important;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.35);
+}
+
+.chat-list { padding: 12px 12px 96px; }
+
+.chat-item {
+  --background: transparent;
+  margin: 10px 4px;
+  border-radius: 16px;
+
+  ion-avatar img { border-radius: 14px; }
+  ion-label h2   { font-weight: 700; color: #fff; }
+  ion-label p    { color: #c9c9c9; }
+}
+
+.footer-glass {
+  position: sticky;
+  bottom: 16px;
+  left: 12px;
+  right: 12px;
+  border-radius: 20px;
+  padding: 6px 8px;
+  z-index: 10;
+
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+
+  ion-segment {
+    --background: transparent;
+    --indicator-color: #ff4458;
+    --indicator-height: 3px;
+  }
+  ion-segment-button {
+    --color: #dcdcdc;
+    --color-checked: #ffffff;
+    --ripple-color: rgba(255,68,88,.35);
+  }
 }

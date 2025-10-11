@@ -1,31 +1,61 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header translucent="true" class="glass-header">
+  <ion-toolbar color="transparent">
     <ion-title>Chats</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-list *ngIf="conversations$ | async as convs; else empty">
-    <ion-item button detail="true" *ngFor="let c of convs" (click)="open(c)">
+<ion-content [fullscreen]="true" class="chat-bg">
+  <div class="chat-list">
+    <ion-item
+      button
+      detail="true"
+      *ngFor="let c of (conversations$ | async) || []"
+      (click)="open(c)"
+      lines="none"
+      class="chat-item glass"
+    >
       <ion-avatar slot="start">
-        <img [src]="c.other?.photoUrl || 'assets/icon/favicon.png'" alt="avatar" />
+        <img
+          [src]="c.other?.photoUrl || $any(c.other)?.photo || 'assets/avatar.svg'"
+          alt="avatar"
+        />
       </ion-avatar>
 
       <ion-label>
         <h2>
           {{ c.other?.name }}
-          <ng-container *ngIf="c.other?.lastName">&nbsp;{{ c.other?.lastName }}</ng-container>
+          <ng-container *ngIf="c.other?.lastName">
+            {{ c.other?.lastName }}
+          </ng-container>
         </h2>
         <p>{{ c.lastText || 'Say hi!' }}</p>
       </ion-label>
 
-      <ion-badge *ngIf="(c.unread ?? 0) > 0" color="danger">{{ c.unread }}</ion-badge>
+      <ion-badge *ngIf="(c.unread ?? 0) > 0" color="danger"
+        >{{ c.unread }}</ion-badge
+      >
+      <ion-icon name="chevron-forward" slot="end"></ion-icon>
     </ion-item>
-  </ion-list>
 
-  <ng-template #empty>
-    <div class="empty ion-padding">
+    <div
+      *ngIf="((conversations$ | async) || []).length === 0"
+      class="empty ion-padding glass"
+    >
       <p>No conversations yet.</p>
     </div>
-  </ng-template>
+  </div>
 </ion-content>
+
+<ion-footer class="footer-glass">
+  <ion-segment value="chats" (ionChange)="go($event)">
+    <ion-segment-button value="chats">
+      <ion-icon name="chatbubbles-outline"></ion-icon>
+    </ion-segment-button>
+    <ion-segment-button value="discover">
+      <ion-icon name="flame-outline"></ion-icon>
+    </ion-segment-button>
+    <ion-segment-button value="profile">
+      <ion-icon name="person-circle-outline"></ion-icon>
+    </ion-segment-button>
+  </ion-segment>
+</ion-footer>

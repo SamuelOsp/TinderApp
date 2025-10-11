@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -13,10 +14,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.imageview.ShapeableImageView;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -65,17 +66,24 @@ public class ChatActivity extends AppCompatActivity {
     String extraMe   = getIntent().getStringExtra("meUid");
     String extraWith = getIntent().getStringExtra("withUid");
     String peerName  = getIntent().getStringExtra("peerName");
+    String peerPhoto = getIntent().getStringExtra("peerPhotoUrl");
     String autoMsg   = getIntent().getStringExtra("autoMessage");
 
-    meUid    = !TextUtils.isEmpty(extraMe)   ? extraMe   : "me";
-    withUid  = !TextUtils.isEmpty(extraWith) ? extraWith : "peer";
+    meUid    = !TextUtils.isEmpty(extraMe)   ? extraMe   : "";
+    withUid  = !TextUtils.isEmpty(extraWith) ? extraWith : "";
     withName = peerName;
 
     if (TextUtils.isEmpty(meUid) || TextUtils.isEmpty(withUid)) {
       finish();
       return;
     }
-    if (!TextUtils.isEmpty(withName)) setTitle(withName);
+
+
+    TextView tvName = findViewById(R.id.tvPeerName);
+    ShapeableImageView ivAvatar = findViewById(R.id.ivAvatar);
+    if (!TextUtils.isEmpty(withName) && tvName != null) tvName.setText(withName);
+
+
 
     List<String> pair = new ArrayList<>();
     pair.add(meUid); pair.add(withUid);
@@ -84,7 +92,9 @@ public class ChatActivity extends AppCompatActivity {
 
     db = FirebaseFirestore.getInstance();
 
+
     ensureThreadDocument(null, null);
+
 
     RecyclerView rv = findViewById(R.id.rvMessages);
     LinearLayoutManager lm = new LinearLayoutManager(this);
@@ -103,25 +113,23 @@ public class ChatActivity extends AppCompatActivity {
       final String text = et.getText().toString().trim();
       if (TextUtils.isEmpty(text)) return;
 
-      et.setText("");
+      et.setText(""); // feedback inmediato
 
       long now = System.currentTimeMillis();
       Message m = new Message(meUid, withUid, text, now);
+
 
       ensureThreadDocument(text, meUid);
 
       db.collection("chats").document(threadId).collection("messages")
         .add(m)
-        .addOnSuccessListener(r -> {
-          // baja al último
-          rv.scrollToPosition(Math.max(0, adapter.getItemCount() - 1));
-        })
+        .addOnSuccessListener(r -> rv.scrollToPosition(Math.max(0, adapter.getItemCount() - 1)))
         .addOnFailureListener(e -> {
-          // Restituye texto si hubo error y avisa
-          et.setText(text);
+          et.setText(text); // devuelve el texto si falló
           Toast.makeText(this, "No se pudo enviar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
     });
+
 
     db.collection("chats").document(threadId).collection("messages")
       .orderBy("createdAt", Query.Direction.ASCENDING)
@@ -136,7 +144,17 @@ public class ChatActivity extends AppCompatActivity {
         rv.scrollToPosition(Math.max(0, list.size() - 1));
       });
 
-    if (!autoSentOnce && !TextUtils.isEmpty(autoMsg) && !TextUtils.isEmpty(withUid)) {
+
+    db.collection("users").document(withUid).addSnapshotListener((doc, e) -> {
+      if (doc != null && doc.exists() && tvName != null) {
+        String n = doc.getString("name");
+        String ln = doc.getString("lastName");
+        if (!TextUtils.isEmpty(n)) tvName.setText(ln != null ? n + " " + ln : n);
+      }
+    });
+
+
+    if (!autoSentOnce && !TextUtils.isEmpty(autoMsg)) {
       autoSentOnce = true;
       long now = System.currentTimeMillis();
       Message auto = new Message(meUid, withUid, autoMsg, now);
@@ -147,20 +165,20 @@ public class ChatActivity extends AppCompatActivity {
   }
 
   private void ensureThreadDocument(@Nullable String lastText, @Nullable String lastFrom) {
+
     List<String> users = new ArrayList<>(Arrays.asList(meUid, withUid));
     List<String> clean = new ArrayList<>();
     for (String s : users) if (s != null && !s.isEmpty() && !clean.contains(s)) clean.add(s);
     Collections.sort(clean);
 
+
     Map<String, Object> conv = new HashMap<>();
     conv.put("users", clean);
+    conv.put("me", meUid);
+    conv.put("other", withUid);
     if (!TextUtils.isEmpty(lastText)) conv.put("lastText", lastText);
     if (!TextUtils.isEmpty(lastFrom)) conv.put("lastFrom", lastFrom);
     conv.put("updatedAt", FieldValue.serverTimestamp());
-    // campos que a tu web le faltaban (error "other" null)
-    conv.put("me", meUid);
-    conv.put("other", withUid);
-
     db.collection("conversations").document(threadId)
       .set(conv, SetOptions.merge());
 
@@ -170,7 +188,6 @@ public class ChatActivity extends AppCompatActivity {
     if (!TextUtils.isEmpty(lastText)) chat.put("lastText", lastText);
     if (!TextUtils.isEmpty(lastFrom)) chat.put("lastFrom", lastFrom);
     chat.put("lastAt", FieldValue.serverTimestamp());
-
     db.collection("chats").document(threadId)
       .set(chat, SetOptions.merge());
   }
@@ -181,5 +198,6 @@ public class ChatActivity extends AppCompatActivity {
     outState.putBoolean(STATE_AUTO_SENT, autoSentOnce);
   }
 }
+
 
 
