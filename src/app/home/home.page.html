@@ -2,10 +2,8 @@
   <router-outlet></router-outlet>
 </ion-content>
 
-<!-- ÚNICA barra inferior -->
 <ion-footer class="footer-glass">
   <ion-toolbar>
-    <!-- Castea con $any y pasa TODO el evento -->
     <ion-segment [value]="$any(selected)" (ionChange)="go($event)">
       <ion-segment-button value="chats">
         <ion-icon name="chatbubbles-outline"></ion-icon>

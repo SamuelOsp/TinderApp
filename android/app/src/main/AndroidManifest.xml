@@ -19,6 +19,19 @@
     android:networkSecurityConfig="@xml/network_security_config"
     android:theme="@style/AppTheme">
 
+    <receiver
+      android:name="io.ionic.starter.widget.ChatsWidgetProvider"
+      android:exported="true">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+        <action android:name="io.ionic.starter.widget.ACTION_REFRESH" />
+      </intent-filter>
+      <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/chats_widget_info" />
+    </receiver>
+
+
     <!-- Matching -->
     <activity
       android:name="com.tinderapp.matching.MatchingActivity"
@@ -44,6 +57,13 @@
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="tinderapp" android:host="open" android:path="/chats"/>
+      </intent-filter>
+
     </activity>
 
     <!-- FileProvider -->
