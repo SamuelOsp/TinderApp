@@ -1,8 +1,8 @@
-// src/app/page/discover/discover.page.ts
-import { Component, OnInit, ViewChildren, QueryList, ElementRef, NgZone } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList, ElementRef, NgZone, AfterViewInit } from '@angular/core';
 import { GestureController } from '@ionic/angular';
 import { MatchingService, Profile } from 'src/app/core/services/matching/matching.services';
 import { ChatsService } from 'src/app/core/services/chats/chats.services';
+import { Chat } from 'src/capacitor/chat';
 import { getAuth } from 'firebase/auth';
 
 @Component({
@@ -11,11 +11,11 @@ import { getAuth } from 'firebase/auth';
   styleUrls: ['./discover.page.scss'],
   standalone: false,
 })
-export class DiscoverPage implements OnInit {
+export class DiscoverPage implements OnInit, AfterViewInit {
   profiles: Profile[] = [];
   photoIndex: Record<string, number> = {};
 
-  @ViewChildren('cardEl') cardEls!: QueryList<ElementRef>;
+  @ViewChildren('cardEl') cardEls!: QueryList<ElementRef<HTMLElement>>;
 
   constructor(
     private matching: MatchingService,
@@ -24,13 +24,19 @@ export class DiscoverPage implements OnInit {
     private zone: NgZone
   ) {}
 
-  async ngOnInit() {
+  ngOnInit() {
     this.matching.profiles$.subscribe(p => {
       this.profiles = p ?? [];
       for (const x of this.profiles) if (this.photoIndex[x.id] == null) this.photoIndex[x.id] = 0;
       this.zone.runOutsideAngular(() => setTimeout(() => this.attachGestures(), 0));
     });
-    await this.matching.refresh(25);
+    this.matching.refresh(25);
+  }
+
+  ngAfterViewInit() {
+    this.cardEls.changes.subscribe(() => {
+      this.zone.runOutsideAngular(() => setTimeout(() => this.attachGestures(), 0));
+    });
   }
 
   trackById = (_: number, p: Profile) => p.id;
@@ -40,18 +46,30 @@ export class DiscoverPage implements OnInit {
     return p.photos?.[idx]?.url || 'assets/icon/favicon.png';
   }
 
-  private async handleLike(p: Profile) {
+  private async openChatIfMatch(p: Profile) {
     const res = await this.matching.like(p.id);
     if (res?.match) {
       const me = getAuth().currentUser?.uid;
-      if (me) await this.chats.sendAutoMessage(me, p.id, '¡Hey! 👋 Es un match.');
+      if (me) {
+        await this.chats.ensureConversation(me, p.id);
+        await this.chats.sendAutoMessage(me, p.id, '✨ ¡Es un match! Di hola 🙂');
+
+        await Chat.open({
+          meUid: me,
+          withUid: p.id,
+          peerName: p.name ?? '',
+          autoMessage: '✨ ¡Es un match! Di hola 🙂'
+        });
+      }
     }
   }
 
   private attachGestures() {
     this.cardEls.forEach((elRef, i) => {
-      const el = elRef.nativeElement as HTMLElement;
-      el.style.transform = ''; el.style.transition = '';
+      const el = elRef.nativeElement;
+      el.style.transform = '';
+      el.style.transition = '';
+      el.classList.remove('liking', 'passing');
       let raf = 0;
 
       const g = this.gestures.create({
@@ -64,22 +82,26 @@ export class DiscoverPage implements OnInit {
           raf = requestAnimationFrame(() => {
             const x = ev.deltaX, y = ev.deltaY, rot = x / 20;
             el.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rot}deg)`;
+            el.classList.toggle('liking', x > 80);
+            el.classList.toggle('passing', x < -80);
           });
         },
 
         onEnd: ev => {
-          const x = ev.deltaX;
+          const x = ev.deltaX, y = ev.deltaY;
           const like = x > 120, pass = x < -120;
+
+          el.classList.remove('liking','passing');
 
           if (like || pass) {
             el.style.transition = '200ms ease-out';
-            el.style.transform = `translate3d(${like ? 1000 : -1000}px, ${ev.deltaY}px, 0) rotate(${x/10}deg)`;
+            el.style.transform = `translate3d(${like ? 1000 : -1000}px, ${y}px, 0) rotate(${x/10}deg)`;
             const p = this.profiles[i];
 
             setTimeout(() => {
-              const op = like ? this.handleLike(p) : this.matching.pass(p.id);
+              const op = like ? this.openChatIfMatch(p) : this.matching.pass(p.id);
               Promise.resolve(op).finally(() => this.zone.run(() => this.removeAt(i)));
-            }, 180);
+            }, 160);
           } else {
             el.style.transition = '160ms';
             el.style.transform = '';
@@ -103,6 +125,7 @@ export class DiscoverPage implements OnInit {
     const max = (p.photos?.length || 1) - 1;
     this.photoIndex[p.id] = i >= max ? max : i + 1;
   }
+
   prevPhoto(p: Profile) {
     const i = this.photoIndex[p.id] ?? 0;
     this.photoIndex[p.id] = i <= 0 ? 0 : i - 1;
@@ -110,9 +133,10 @@ export class DiscoverPage implements OnInit {
 
   async likeTop() {
     const t = this.profiles?.[0]; if (!t) return;
-    await this.handleLike(t);
+    await this.openChatIfMatch(t);
     this.removeAt(0);
   }
+
   async passTop() {
     const t = this.profiles?.[0]; if (!t) return;
     await this.matching.pass(t.id);

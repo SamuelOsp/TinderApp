@@ -1,29 +1,19 @@
-:host {
-  --tabbar-height: 56px;
-}
+:host { --tabbar-height: 56px; }
 
 .discover {
-  --background: #0b0b0b; 
+  --background: #ffffff;  /* fondo BLANCO */
   position: relative;
   overflow: hidden;
 }
 
 .topbar {
   position: absolute;
-  top: 0;
-  left: 0; right: 0;
+  top: 0; left: 0; right: 0;
   height: 64px;
   padding-top: env(safe-area-inset-top);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-  pointer-events: none; 
-
-  ion-icon {
-    font-size: 28px;
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
-  }
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; pointer-events: none;
+  ion-icon { font-size: 28px; color: #111; }
 }
 
 .deck {
@@ -35,55 +25,32 @@
 }
 
 .card {
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 18px 30px rgba(0,0,0,.35);
+  position: absolute; inset: 0;
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 18px 30px rgba(0,0,0,.20);
   transform-origin: center bottom;
   background: #111;
-
   &.behind-1 { transform: translateY(8px) scale(.98); filter: blur(.1px); }
   &.behind-2 { transform: translateY(16px) scale(.96); filter: blur(.15px); }
   &.behind   { pointer-events: none; }
 }
 
-.photo {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
-}
+.photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
-.dots {
-  position: absolute; top: 8px; left: 12px; right: 12px;
-  display: grid; grid-auto-flow: column; gap: 6px; z-index: 10;
-}
-.dots span {
-  height: 3px; border-radius: 3px; background: rgba(255,255,255,.35);
-}
+.dots { position: absolute; top: 8px; left: 12px; right: 12px; display: grid; grid-auto-flow: column; gap: 6px; z-index: 10; }
+.dots span { height: 3px; border-radius: 3px; background: rgba(255,255,255,.35); }
 .dots span.on { background: #fff; }
 
 .badge {
-  position: absolute;
-  top: 16px;
-  padding: 6px 10px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  border: 4px solid;
-  border-radius: 8px;
-  transform: rotate(-15deg);
-  font-size: 18px;
-  color: #fff;
-  mix-blend-mode: screen;
-  opacity: 0;
-  transition: opacity .2s ease;
+  position: absolute; top: 16px; padding: 6px 10px;
+  font-weight: 800; letter-spacing: 1px; border: 4px solid; border-radius: 8px;
+  transform: rotate(-15deg); font-size: 18px; color: #fff;
+  mix-blend-mode: screen; opacity: 0; transition: opacity .2s ease;
 }
-.card.liking   .badge.like { opacity: 1; }
-.card.passing  .badge.nope { opacity: 1; }
-
+.card.liking  .badge.like { opacity: 1; }
+.card.passing .badge.nope { opacity: 1; }
 .badge.like { left: 16px; border-color: #2bff88; color: #2bff88; }
 .badge.nope { right: 16px; border-color: #ff4e4e; color: #ff4e4e; transform: rotate(15deg); }
-
 
 .info {
   position: absolute; left: 0; right: 0; bottom: 0;
@@ -97,26 +64,22 @@
 .meta { display: flex; align-items: center; gap: 6px; margin-top: 2px; opacity: .9; }
 .bio { margin-top: 8px; line-height: 1.35; }
 
-
 .actions {
-  position: absolute;
-  left: 0; right: 0;
+  position: absolute; left: 0; right: 0;
   bottom: calc(env(safe-area-inset-bottom) + var(--tabbar-height) + 12px);
   display: flex; justify-content: center; gap: 28px;
   z-index: 300;
 }
 
 .btn {
-  width: 68px; height: 68px; border-radius: 999px; border: none;
-  background: #fff;
-  box-shadow: 0 12px 24px rgba(0,0,0,.35);
+  width: 68px; height: 68px; border-radius: 999px; border: 1px solid #e5e7eb;
+  background: #fff; color: #111;
+  box-shadow: 0 12px 24px rgba(0,0,0,.15);
   display: grid; place-items: center;
 }
 .btn ion-icon { font-size: 30px; }
-.btn-nope { background: #fff; color: #ff4e4e; }
-.btn-like { background: #fff; color: #24d37b; }
+.btn-nope { color: #ff4e4e; }
+.btn-like { color: #24d37b; }
 
-
-.tap { position: absolute; top: 0; bottom: 0; width: 50%; }
-.tap-left  { left: 0; }
-.tap-right { right: 0; }
+.tap-left, .tap-right { position:absolute; top:0; bottom:0; width:50%; z-index: 5; }
+.tap-left { left:0; } .tap-right { right:0; }

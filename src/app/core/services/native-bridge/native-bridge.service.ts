@@ -1,40 +1,38 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Matching } from 'src/capacitor/matching';
 
-export interface ProfilePhoto { url: string }
-export interface Profile {
-  id: string;
-  name: string;
-  age: number;
-  distanceKm?: number;
-  photos: ProfilePhoto[];
-  bio?: string;
-}
-
 @Injectable({ providedIn: 'root' })
 export class NativeBridgeService {
   private mounted = false;
 
   constructor(private zone: NgZone) {}
 
-  
   mount() {
     if (this.mounted) return;
     this.mounted = true;
 
-    Matching.addListener?.('like', ({ to }) =>
-      console.log('[native] like', to)
-    );
-    Matching.addListener?.('nope', ({ to }) =>
-      console.log('[native] nope', to)
-    );
+    Matching.addListener?.('like', (d: any) => {
+      const profileId = d?.profileId ?? d?.to ?? d?.with; 
+      this.zone.run(() => console.log('[native] like', profileId));
+    });
 
-   
+    Matching.addListener?.('nope', (d: any) => {
+      const profileId = d?.profileId ?? d?.to ?? d?.with;
+      this.zone.run(() => console.log('[native] nope', profileId));
+    });
+
+    Matching.addListener?.('match', (d: any) => {
+      const profileId = d?.profileId ?? d?.with ?? d?.to;
+      const conversationId = d?.conversationId;
+      this.zone.run(() => console.log('[native] match', { profileId, conversationId }));
+    });
+
+    Matching.addListener?.('profilesUpdated', ({ profiles }) => {
+      this.zone.run(() => console.log('[native] profilesUpdated', profiles?.length ?? 0));
+    });
   }
 
-
   async matchingGetProfiles(opts: { limit?: number }) {
-
     return Matching.getProfiles(opts);
   }
 

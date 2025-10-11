@@ -4,9 +4,9 @@ export interface ProfilePhoto { url: string }
 export interface Profile { id: string; name: string; age?: number; distanceKm?: number; photos: ProfilePhoto[]; bio?: string; }
 
 export type MatchingEvents = {
-  like: { to: string };
-  nope: { to: string };
-  match: { with: string; conversationId?: string };
+  like: { profileId: string };                     
+  nope: { profileId: string };                     
+  match: { profileId: string; conversationId?: string };
   profilesUpdated: { profiles: Profile[] };
 };
 

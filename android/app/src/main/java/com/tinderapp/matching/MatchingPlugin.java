@@ -32,6 +32,33 @@ public class MatchingPlugin extends Plugin {
     instanceRef = new WeakReference<>(this);
   }
 
+  private static MatchingPlugin getInstance() {
+    return instanceRef != null ? instanceRef.get() : null;
+  }
+
+  public static void emitLike(String profileId) {
+    MatchingPlugin inst = getInstance();
+    if (inst == null) return;
+    JSObject data = new JSObject().put("profileId", profileId);
+    inst.notifyListeners("like", data);
+  }
+
+  public static void emitNope(String profileId) {
+    MatchingPlugin inst = getInstance();
+    if (inst == null) return;
+    JSObject data = new JSObject().put("profileId", profileId);
+    inst.notifyListeners("nope", data);
+  }
+
+  public static void emitMatch(String profileId, String conversationId) {
+    MatchingPlugin inst = getInstance();
+    if (inst == null) return;
+    JSObject data = new JSObject().put("profileId", profileId);
+    if (conversationId != null) data.put("conversationId", conversationId);
+    inst.notifyListeners("match", data);
+  }
+  // -------------------------------------------------------------------------------------------
+
 
   @PluginMethod
   public void open(PluginCall call) {
@@ -62,20 +89,18 @@ public class MatchingPlugin extends Plugin {
     call.resolve(ret);
   }
 
-
   @PluginMethod
   public void getProfiles(PluginCall call) {
     int limit = call.getInt("limit", 25);
 
     try {
-      // 🔹 Usa el repositorio real
       List<Profile> profiles = MatchingRepository.getInstance().fetchProfiles(limit);
 
       JSArray arr = new JSArray();
       for (Profile p : profiles) {
         JSObject json = new JSObject();
         json.put("id", p.getUid());
-        json.put("name", p.getName() + " " + p.getLastName());
+        json.put("name", (p.getName() != null ? p.getName() : "") + " " + (p.getLastName() != null ? p.getLastName() : ""));
         json.put("age", 22);
         json.put("distanceKm", 3);
 
@@ -92,7 +117,6 @@ public class MatchingPlugin extends Plugin {
       JSObject ret = new JSObject().put("profiles", arr);
       call.resolve(ret);
 
-
       JSObject evt = new JSObject().put("profiles", arr);
       notifyListeners("profilesUpdated", evt);
 
@@ -100,7 +124,6 @@ public class MatchingPlugin extends Plugin {
       call.reject("getProfiles failed: " + t.getMessage());
     }
   }
-
 
   @PluginMethod
   public void like(PluginCall call) {
@@ -113,25 +136,22 @@ public class MatchingPlugin extends Plugin {
       boolean matched = MatchingRepository.getInstance().registerLike(profileId);
       String conversationId = matched ? MatchingRepository.getInstance().createConversation(profileId) : null;
 
+      emitLike(profileId);
+
+      if (matched) {
+        emitMatch(profileId, conversationId);
+      }
+
       JSObject ret = new JSObject();
       ret.put("match", matched);
       if (matched && conversationId != null) {
         ret.put("conversationId", conversationId);
-        JSObject evt = new JSObject()
-          .put("with", profileId)
-          .put("conversationId", conversationId);
-        notifyListeners("match", evt);
       }
-
-      JSObject likeEvt = new JSObject().put("to", profileId);
-      notifyListeners("like", likeEvt);
-
       call.resolve(ret);
     } catch (Throwable t) {
       call.reject("like failed: " + t.getMessage());
     }
   }
-
 
   @PluginMethod
   public void pass(PluginCall call) {
@@ -142,8 +162,7 @@ public class MatchingPlugin extends Plugin {
     }
     try {
       MatchingRepository.getInstance().registerPass(profileId);
-      JSObject evt = new JSObject().put("to", profileId);
-      notifyListeners("nope", evt);
+      emitNope(profileId);
       call.resolve();
     } catch (Throwable t) {
       call.reject("pass failed: " + t.getMessage());
@@ -155,9 +174,6 @@ public class MatchingPlugin extends Plugin {
     notifyListeners(event, data);
   }
 
-  public static MatchingPlugin getInstance() {
-    return instanceRef != null ? instanceRef.get() : null;
-  }
 
   public static void emitProfilesUpdated(List<JSONObject> profiles) throws JSONException {
     MatchingPlugin inst = getInstance();

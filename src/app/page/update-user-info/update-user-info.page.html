@@ -1,13 +1,61 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>update-user-info</ion-title>
+    <ion-title>Cuenta</ion-title>
+    <ion-buttons slot="end">
+      <ion-button color="danger" (click)="logout()">Cerrar sesión</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">update-user-info</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="account">
+  <section class="photos">
+    <div class="grid">
+      <div class="cell main" *ngIf="model.photos?.[0]; else add0">
+        <img [src]="model.photos![0]" alt="photo 1">
+        <button class="star" (click)="setPrimary(0)" title="Principal">★</button>
+        <button class="remove" (click)="removePhoto(0)">✕</button>
+      </div>
+      <ng-template #add0>
+        <button class="cell add main" (click)="addPhoto()">
+          <ion-icon name="add-outline"></ion-icon>
+          <span>Añadir foto</span>
+        </button>
+      </ng-template>
+
+      <ng-container *ngFor="let url of model.photos?.slice(1,9); let i = index; trackBy: trackByIndex">
+        <div class="cell">
+          <img [src]="url" alt="photo">
+          <button class="make-primary" (click)="setPrimary(i+1)" title="Hacer principal">⇧</button>
+          <button class="remove" (click)="removePhoto(i+1)">✕</button>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="(model.photos?.length || 0) < 9">
+        <ng-container *ngFor="let _ of [].constructor(9 - (model.photos?.length || 0))">
+          <button class="cell add" (click)="addPhoto()">
+            <ion-icon name="add-outline"></ion-icon>
+          </button>
+        </ng-container>
+      </ng-container>
+    </div>
+    <ion-note class="hint">Sube hasta 9 fotos. Mantén pulsado cuando recortes en el selector.</ion-note>
+  </section>
+
+  <section class="basics">
+    <ion-item lines="full">
+      <ion-label position="stacked">Nombre</ion-label>
+      <ion-input [(ngModel)]="model.name" placeholder="Tu nombre"></ion-input>
+    </ion-item>
+
+    <ion-item lines="full">
+      <ion-label position="stacked">Sobre ti</ion-label>
+      <ion-textarea [(ngModel)]="model.bio" placeholder="Bio corta..."></ion-textarea>
+    </ion-item>
+
+    <div class="actions">
+      <ion-button (click)="saveBasics()" [disabled]="busy">Guardar</ion-button>
+    </div>
+  </section>
+
+  <ion-spinner *ngIf="busy" class="overlay"></ion-spinner>
 </ion-content>

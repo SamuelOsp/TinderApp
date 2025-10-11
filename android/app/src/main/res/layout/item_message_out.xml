@@ -1,9 +1,14 @@
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/txt"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:layout_margin="6dp"
-  android:padding="10dp"
-  android:background="#ff5a66"
-  android:textColor="#ffffff"/>
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="4dp">
+  <TextView
+    android:id="@+id/tvText"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="start"
+    android:background="@drawable/bg_bubble_out"
+    android:textColor="@android:color/black"
+    android:padding="10dp" />
+</FrameLayout>
+
 

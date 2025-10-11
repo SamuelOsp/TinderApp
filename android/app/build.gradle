@@ -39,7 +39,7 @@ dependencies {
     implementation "com.google.android.material:material:1.12.0"
     implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
     implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
-
+    
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:33.1.2')
     implementation 'com.google.firebase:firebase-auth:23.0.0'

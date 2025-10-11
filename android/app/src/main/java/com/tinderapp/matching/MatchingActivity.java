@@ -35,16 +35,17 @@ public class MatchingActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    if (FirebaseApp.getApps(this).isEmpty()) {
-      FirebaseApp.initializeApp(this);
-    }
+
+
+    try { if (FirebaseApp.getApps(this).isEmpty()) FirebaseApp.initializeApp(this); }
+    catch (Exception ignore) {}
+
     setContentView(R.layout.activity_matching);
 
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     rv = findViewById(R.id.rvCards);
-
-
     rv.setLayoutManager(new StackLayoutManager());
-
     adapter = new ProfilesAdapter(this, data);
     rv.setAdapter(adapter);
 
@@ -56,8 +57,9 @@ public class MatchingActivity extends AppCompatActivity {
     ImageButton btnBack = findViewById(R.id.btnBack);
     ImageButton btnChat = findViewById(R.id.btnChat);
 
-    btnLike.setOnClickListener(v -> swipeTopCard());
-    btnNope.setOnClickListener(v -> swipeTopCard());
+
+    btnLike.setOnClickListener(v -> likeTop());
+    btnNope.setOnClickListener(v -> rejectTop());
     btnBack.setOnClickListener(v -> finish());
     btnChat.setOnClickListener(v -> {
       if (!data.isEmpty()) {
@@ -67,9 +69,23 @@ public class MatchingActivity extends AppCompatActivity {
     });
   }
 
+  private void likeTop() {
+    if (data.isEmpty()) return;
+    Profile p = data.get(0);
+    onMatch(p);
+    data.remove(0);
+    adapter.notifyItemRemoved(0);
+  }
+
+  private void rejectTop() {
+    if (data.isEmpty()) return;
+    Profile p = data.get(0);
+    onReject(p);
+    data.remove(0);
+    adapter.notifyItemRemoved(0);
+  }
 
   private void loadUsersFromFirestore() {
-    FirebaseApp.initializeApp(this);
     String me = FirebaseAuth.getInstance().getCurrentUser() != null
       ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
 
@@ -81,14 +97,12 @@ public class MatchingActivity extends AppCompatActivity {
 
         for (DocumentSnapshot d : snap.getDocuments()) {
           Profile p = new Profile();
-          p.uid = d.getId(); // fallback
+          p.uid = d.getId();
 
-          // Nombres posibles
           p.name     = firstNonEmpty(d, "name", "firstName", "displayName");
           p.lastName = firstNonEmpty(d, "lastName", "surname");
           p.city     = firstNonEmpty(d, "city", "location", "country");
 
-          // Fotos: array o string suelto
           List<String> photos = firstStringList(d, "photos", "images", "photosUrl");
           if (photos == null || photos.isEmpty()) {
             String single = firstNonEmpty(d, "photoUrl", "image", "avatar", "picture");
@@ -96,7 +110,6 @@ public class MatchingActivity extends AppCompatActivity {
           }
           if (photos != null) p.photos = photos;
 
-          // Filtra mi propio user
           String docUid = valueAsString(d, "uid");
           if (docUid != null) p.uid = docUid;
           if (me != null && me.equals(p.uid)) continue;
@@ -125,7 +138,8 @@ public class MatchingActivity extends AppCompatActivity {
       if (v instanceof List) {
         List<?> raw = (List<?>) v;
         List<String> out = new ArrayList<>();
-        for (Object o : raw) if (o instanceof String && !((String)o).trim().isEmpty()) out.add((String)o);
+        for (Object o : raw)
+          if (o instanceof String && !((String) o).trim().isEmpty()) out.add((String) o);
         if (!out.isEmpty()) return out;
       }
     }
@@ -137,12 +151,6 @@ public class MatchingActivity extends AppCompatActivity {
     return (v instanceof String) ? (String) v : null;
   }
 
-  private void swipeTopCard() {
-    RecyclerView.ViewHolder vh = rv.findViewHolderForAdapterPosition(0);
-    if (vh != null && touchHelper != null) {
-      touchHelper.startSwipe(vh);
-    }
-  }
 
   private void attachSwipe() {
     ItemTouchHelper.SimpleCallback cb = new ItemTouchHelper.SimpleCallback(
@@ -194,7 +202,7 @@ public class MatchingActivity extends AppCompatActivity {
   }
 
   private void onReject(Profile p) {
-
+    // no-op
   }
 
   private void openChatWithAutoMessage(Profile p, String msg) {

@@ -1,27 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <!-- Permissions -->
+  <!-- Permisos -->
   <uses-permission android:name="android.permission.INTERNET" />
-  <!-- Android 13+ -->
   <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-  <!-- Hasta API 32 (deprecated desde 33) -->
   <uses-permission
     android:name="android.permission.READ_EXTERNAL_STORAGE"
     android:maxSdkVersion="32" />
 
   <application
-    android:networkSecurityConfig="@xml/network_security_config"
     android:name=".MainApplication"
-    android:usesCleartextTraffic="true"
-    android:allowBackup="true"
-    android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
+    android:icon="@mipmap/ic_launcher"
     android:roundIcon="@mipmap/ic_launcher_round"
+    android:allowBackup="true"
     android:supportsRtl="true"
+    android:usesCleartextTraffic="true"
+    android:networkSecurityConfig="@xml/network_security_config"
     android:theme="@style/AppTheme">
 
-    <!-- Pantalla de matching -->
+    <!-- Matching -->
     <activity
       android:name="com.tinderapp.matching.MatchingActivity"
       android:exported="false"
@@ -33,7 +31,7 @@
       android:exported="false"
       android:theme="@style/AppTheme" />
 
-    <!-- Activity principal que lanza la app -->
+    <!-- MainActivity (Capacitor) -->
     <activity
       android:name=".MainActivity"
       android:label="@string/app_name"
@@ -41,14 +39,13 @@
       android:launchMode="singleTask"
       android:exported="true"
       android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation">
-
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
 
-    <!-- FileProvider para compartir/leer URIs de archivos -->
+    <!-- FileProvider -->
     <provider
       android:name="androidx.core.content.FileProvider"
       android:authorities="${applicationId}.fileprovider"

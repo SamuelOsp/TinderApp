@@ -1,105 +1,80 @@
-// src/app/core/services/chats/chats.services.ts
-import { Injectable } from '@angular/core';
-import {
-  Firestore, doc, setDoc, collection, addDoc, serverTimestamp,
-  collectionData, docData, query, where, orderBy, limit
-} from '@angular/fire/firestore';
-import { Observable, combineLatest, map, of, switchMap } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Firestore, collection, collectionData, doc, docData, query, where, orderBy, setDoc, serverTimestamp } from '@angular/fire/firestore';
+import { map, switchMap, of, combineLatest } from 'rxjs';
 
-export interface ConversationVM {
+export type ConversationVM = {
   id: string;
-  users: string[];
-  updatedAt?: any;          
+  other: { uid: string; name?: string; lastName?: string; photoUrl?: string };
   lastText?: string;
-  lastAuthorId?: string;
-  unread?: number;         
-  other?: {
-    uid: string;
-    name?: string;
-    lastName?: string;
-    photoUrl?: string;
-  };
-}
+  lastAt?: any;
+  unread?: number;
+};
 
 @Injectable({ providedIn: 'root' })
 export class ChatsService {
-  constructor(private afs: Firestore) {}
+  private db = inject(Firestore);
 
-  private convoId(me: string, other: string) {
-    return me < other ? `${me}_${other}` : `${other}_${me}`;
-  }
+  conversations$(meUid: string) {
+    const col = collection(this.db, 'chats');
 
-  conversations$(meUid: string, take: number = 50): Observable<ConversationVM[]> {
-    const col = collection(this.afs, 'conversations');
-    const qy = query(col,
-      where('users', 'array-contains', meUid),
-      orderBy('updatedAt', 'desc'),
-      limit(take)
-    );
+    const qy = query(col, where('participants', 'array-contains', meUid), orderBy('lastAt', 'desc'));
 
     return collectionData(qy, { idField: 'id' }).pipe(
-      switchMap((rows: any[]) => {
-        if (!rows?.length) return of<ConversationVM[]>([]);
-        const items$ = rows.map(row => {
-          const otherUid = (row?.users || []).find((u: string) => u !== meUid) || '';
+      switchMap((threads: any[]) => {
+        if (!threads?.length) return of([] as ConversationVM[]);
+
+        const items$ = threads.map(t => {
+          const parts: string[] = Array.isArray(t?.participants) ? t.participants.filter(Boolean) : [];
+          const otherUid = parts.find(x => x !== meUid);
+
+          const base = {
+            id: t.id,
+            lastText: t.lastText || '',
+            lastAt: t.lastAt,
+            unread: 0,
+          };
+
           if (!otherUid) {
-            return of({
-              id: row.id,
-              users: row.users || [],
-              updatedAt: row.updatedAt,
-              lastText: row.lastText,
-              lastAuthorId: row.lastAuthorId,
-              unread: row?.[`unreadBy_${meUid}`] ?? 0,
-              other: { uid: '', name: '', lastName: '', photoUrl: '' }
-            } as ConversationVM);
+            // Evita path inválido y deja algo visible
+            return of({ ...base, other: { uid: '', name: 'Unknown' } } as ConversationVM);
           }
-          return docData(doc(this.afs, `users/${otherUid}`)).pipe(
+
+          const otherRef = doc(this.db, 'users', otherUid);
+          return docData(otherRef).pipe(
             map((u: any) => ({
-              id: row.id,
-              users: row.users || [],
-              updatedAt: row.updatedAt,
-              lastText: row.lastText,
-              lastAuthorId: row.lastAuthorId,
-              unread: row?.[`unreadBy_${meUid}`] ?? 0,
+              ...base,
               other: {
                 uid: otherUid,
-                name: u?.name || u?.displayName || '',
-                lastName: u?.lastName || u?.surname || '',
-                photoUrl: u?.photoUrl || u?.avatar || ''
-              }
+                name: u?.name,
+                lastName: u?.lastName,
+                photoUrl: Array.isArray(u?.photos) ? u.photos?.[0] : (u?.photoUrl || undefined),
+              },
             } as ConversationVM))
           );
         });
+
         return combineLatest(items$);
       })
     );
   }
 
+  async ensureConversation(meUid: string, otherUid: string) {
+    const ids = [meUid, otherUid].sort();
+    const id = `${ids[0]}_${ids[1]}`;
+    const ref = doc(this.db, 'chats', id);
+    await setDoc(ref, { participants: ids, lastAt: serverTimestamp() }, { merge: true });
+    return id;
+  }
+
   async sendAutoMessage(meUid: string, otherUid: string, text: string) {
-    const id = this.convoId(meUid, otherUid);
-
-    
-    await setDoc(
-      doc(this.afs, `conversations/${id}`),
-      { id, users: [meUid, otherUid], updatedAt: serverTimestamp() },
-      { merge: true }
-    );
-
-   
-    await addDoc(
-      collection(this.afs, `conversations/${id}/messages`),
-      {
-        authorId: meUid,
-        text,
-        sentAt: serverTimestamp(),
-        system: true
-      }
-    );
-
-    await setDoc(
-      doc(this.afs, `conversations/${id}`),
-      { updatedAt: serverTimestamp(), lastText: text, lastAuthorId: meUid },
-      { merge: true }
-    );
+    const ids = [meUid, otherUid].sort();
+    const id = `${ids[0]}_${ids[1]}`;
+    const ref = doc(this.db, 'chats', id);
+    await setDoc(ref, {
+      participants: ids,
+      lastText: text,
+      lastFrom: meUid,
+      lastAt: serverTimestamp()
+    }, { merge: true });
   }
 }
