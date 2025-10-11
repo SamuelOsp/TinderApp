@@ -14,49 +14,49 @@ export type ConversationVM = {
 export class ChatsService {
   private db = inject(Firestore);
 
-  conversations$(meUid: string) {
-    const col = collection(this.db, 'chats');
+conversations$(meUid: string) {
+  const col = collection(this.db, 'chats');
+  const qy = query(col,
+    where('participants', 'array-contains', meUid),
+    orderBy('lastAt', 'desc')
+  );
 
-    const qy = query(col, where('participants', 'array-contains', meUid), orderBy('lastAt', 'desc'));
+  return collectionData(qy, { idField: 'id' }).pipe(
+    map((threads: any[]) =>
+      (threads || []).filter(t =>
+        Array.isArray(t?.participants) &&
+        (t.participants as string[]).filter(Boolean).length >= 2
+      )
+    ),
+    switchMap((threads: any[]) => {
+      const streams = threads.map(t => {
+        const arr = (t.participants as string[]).filter(Boolean);
+        const otherUid = arr.find(x => x !== meUid);
+        if (!otherUid) return of(null); 
 
-    return collectionData(qy, { idField: 'id' }).pipe(
-      switchMap((threads: any[]) => {
-        if (!threads?.length) return of([] as ConversationVM[]);
-
-        const items$ = threads.map(t => {
-          const parts: string[] = Array.isArray(t?.participants) ? t.participants.filter(Boolean) : [];
-          const otherUid = parts.find(x => x !== meUid);
-
-          const base = {
+        return docData(doc(this.db, 'users', otherUid)).pipe(
+          map((u: any) => ({
             id: t.id,
+            other: {
+              uid: otherUid,
+              name: u?.name,
+              lastName: u?.lastName,
+              photoUrl: u?.photos?.[0] || u?.photoUrl
+            },
             lastText: t.lastText || '',
             lastAt: t.lastAt,
-            unread: 0,
-          };
+            unread: 0
+          } as ConversationVM))
+        );
+      });
 
-          if (!otherUid) {
-            // Evita path inválido y deja algo visible
-            return of({ ...base, other: { uid: '', name: 'Unknown' } } as ConversationVM);
-          }
+      const valid = streams.filter(Boolean) as any[];
+      if (!valid.length) return of([] as ConversationVM[]);
+      return combineLatest(valid);
+    })
+  );
+}
 
-          const otherRef = doc(this.db, 'users', otherUid);
-          return docData(otherRef).pipe(
-            map((u: any) => ({
-              ...base,
-              other: {
-                uid: otherUid,
-                name: u?.name,
-                lastName: u?.lastName,
-                photoUrl: Array.isArray(u?.photos) ? u.photos?.[0] : (u?.photoUrl || undefined),
-              },
-            } as ConversationVM))
-          );
-        });
-
-        return combineLatest(items$);
-      })
-    );
-  }
 
   async ensureConversation(meUid: string, otherUid: string) {
     const ids = [meUid, otherUid].sort();

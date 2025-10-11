@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-
   <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
     <item name="android:windowBackground">@color/background_light</item>
     <item name="android:statusBarColor">@color/white</item>
     <item name="android:navigationBarColor">@color/white</item>
   </style>
 
-
   <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
     <item name="windowSplashScreenBackground">@color/splash_background</item>
     <item name="postSplashScreenTheme">@style/AppTheme</item>
   </style>
 
+  <!-- Overlay para hacer circular el avatar -->
+  <style name="ShapeAppearanceOverlay_App_Circle">
+    <item name="cornerFamily">rounded</item>
+    <item name="cornerSize">50%</item>
+  </style>
+
 </resources>
+
 
 
 

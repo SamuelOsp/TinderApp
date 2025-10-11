@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,12 +12,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
+
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.SetOptions;
 
 import com.tinderapp.chat.views.MessagesAdapter;
 
@@ -45,7 +50,11 @@ public class ChatActivity extends AppCompatActivity {
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
     if (FirebaseApp.getApps(this).isEmpty()) FirebaseApp.initializeApp(this);
+    if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+      FirebaseAuth.getInstance().signInAnonymously();
+    }
 
     setContentView(R.layout.activity_chat);
 
@@ -58,10 +67,14 @@ public class ChatActivity extends AppCompatActivity {
     String peerName  = getIntent().getStringExtra("peerName");
     String autoMsg   = getIntent().getStringExtra("autoMessage");
 
-    meUid   = !TextUtils.isEmpty(extraMe)   ? extraMe   : "me";
-    withUid = !TextUtils.isEmpty(extraWith) ? extraWith : "peer";
+    meUid    = !TextUtils.isEmpty(extraMe)   ? extraMe   : "me";
+    withUid  = !TextUtils.isEmpty(extraWith) ? extraWith : "peer";
     withName = peerName;
 
+    if (TextUtils.isEmpty(meUid) || TextUtils.isEmpty(withUid)) {
+      finish();
+      return;
+    }
     if (!TextUtils.isEmpty(withName)) setTitle(withName);
 
     List<String> pair = new ArrayList<>();
@@ -82,20 +95,31 @@ public class ChatActivity extends AppCompatActivity {
     rv.setAdapter(adapter);
 
     EditText et = findViewById(R.id.etMessage);
-    ImageButton btnSend = findViewById(R.id.btnSend);
+    MaterialButton btnSend = findViewById(R.id.btnSend);
+    ImageButton btnBack = findViewById(R.id.btnBack);
+    if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
     btnSend.setOnClickListener(v -> {
-      String text = et.getText().toString().trim();
+      final String text = et.getText().toString().trim();
       if (TextUtils.isEmpty(text)) return;
-      long now = System.currentTimeMillis();
 
+      et.setText("");
+
+      long now = System.currentTimeMillis();
       Message m = new Message(meUid, withUid, text, now);
+
+      ensureThreadDocument(text, meUid);
+
       db.collection("chats").document(threadId).collection("messages")
         .add(m)
         .addOnSuccessListener(r -> {
-          et.setText("");
-          // actualiza resumen del hilo
-          ensureThreadDocument(text, meUid);
+          // baja al último
+          rv.scrollToPosition(Math.max(0, adapter.getItemCount() - 1));
+        })
+        .addOnFailureListener(e -> {
+          // Restituye texto si hubo error y avisa
+          et.setText(text);
+          Toast.makeText(this, "No se pudo enviar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
     });
 
@@ -112,7 +136,6 @@ public class ChatActivity extends AppCompatActivity {
         rv.scrollToPosition(Math.max(0, list.size() - 1));
       });
 
-    // Auto-mensaje sólo una vez
     if (!autoSentOnce && !TextUtils.isEmpty(autoMsg) && !TextUtils.isEmpty(withUid)) {
       autoSentOnce = true;
       long now = System.currentTimeMillis();
@@ -124,15 +147,32 @@ public class ChatActivity extends AppCompatActivity {
   }
 
   private void ensureThreadDocument(@Nullable String lastText, @Nullable String lastFrom) {
-    DocumentReference ref = db.collection("chats").document(threadId);
+    List<String> users = new ArrayList<>(Arrays.asList(meUid, withUid));
+    List<String> clean = new ArrayList<>();
+    for (String s : users) if (s != null && !s.isEmpty() && !clean.contains(s)) clean.add(s);
+    Collections.sort(clean);
 
-    Map<String, Object> data = new HashMap<>();
-    data.put("participants", Arrays.asList(meUid, withUid));
-    if (!TextUtils.isEmpty(lastText)) data.put("lastText", lastText);
-    if (!TextUtils.isEmpty(lastFrom)) data.put("lastFrom", lastFrom);
-    data.put("lastAt", FieldValue.serverTimestamp());
+    Map<String, Object> conv = new HashMap<>();
+    conv.put("users", clean);
+    if (!TextUtils.isEmpty(lastText)) conv.put("lastText", lastText);
+    if (!TextUtils.isEmpty(lastFrom)) conv.put("lastFrom", lastFrom);
+    conv.put("updatedAt", FieldValue.serverTimestamp());
+    // campos que a tu web le faltaban (error "other" null)
+    conv.put("me", meUid);
+    conv.put("other", withUid);
 
-    ref.set(data, com.google.firebase.firestore.SetOptions.merge());
+    db.collection("conversations").document(threadId)
+      .set(conv, SetOptions.merge());
+
+
+    Map<String, Object> chat = new HashMap<>();
+    chat.put("participants", clean);
+    if (!TextUtils.isEmpty(lastText)) chat.put("lastText", lastText);
+    if (!TextUtils.isEmpty(lastFrom)) chat.put("lastFrom", lastFrom);
+    chat.put("lastAt", FieldValue.serverTimestamp());
+
+    db.collection("chats").document(threadId)
+      .set(chat, SetOptions.merge());
   }
 
   @Override
@@ -141,3 +181,5 @@ public class ChatActivity extends AppCompatActivity {
     outState.putBoolean(STATE_AUTO_SENT, autoSentOnce);
   }
 }
+
+

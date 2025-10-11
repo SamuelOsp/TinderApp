@@ -28,6 +28,7 @@
     <!-- Chat -->
     <activity
       android:name="com.tinderapp.chat.ChatActivity"
+      android:windowSoftInputMode="adjustResize|stateHidden"
       android:exported="false"
       android:theme="@style/AppTheme" />
 

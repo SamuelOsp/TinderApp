@@ -3,5 +3,10 @@
   <color name="background_light">#F6F6F6</color>
   <color name="white">#FFFFFF</color>
   <color name="splash_background">#FFFFFF</color>
+  <color name="chatBackground">#F6F7F9</color>
+  <color name="chatOutgoing">#0A84FF</color>
+  <color name="chatIncoming">#FFFFFF</color>
+  <color name="chatSubtitle">#7A7D81</color>
+  <color name="chatTimeIn">#7A7D81</color>
 </resources>
 

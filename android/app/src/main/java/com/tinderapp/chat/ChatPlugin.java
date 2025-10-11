@@ -21,8 +21,11 @@ public class ChatPlugin extends Plugin {
     Intent i = new Intent(getContext(), ChatActivity.class);
     i.putExtra("meUid", me);
     i.putExtra("withUid", with);
+    i.putExtra("peerName", call.getString("peerName"));
+    i.putExtra("autoMessage", call.getString("autoMessage"));
     getActivity().startActivity(i);
     call.resolve(new JSObject().put("ok", true));
   }
+
 }
 
